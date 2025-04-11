@@ -15,5 +15,16 @@
     { "src": "/(.+\\.html)", "dest": "/$1" },
     { "src": "/img/(.*)", "dest": "/img/$1" },
     { "src": "/(.*)", "dest": "/server.js" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
   ]
 } 

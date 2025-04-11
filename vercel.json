@@ -9,6 +9,7 @@
   ],
   "routes": [
     { "src": "/", "dest": "/index.html" },
+    { "src": "/split-gif.html", "dest": "/split-gif.html" },
     { "src": "/(.+\\.gif)", "dest": "/$1" },
     { "src": "/(.+\\.js)", "dest": "/$1" },
     { "src": "/(.+\\.css)", "dest": "/$1" },

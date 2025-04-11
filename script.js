@@ -9,13 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadAllBtn = document.getElementById('download-all');
     const loadingIndicator = document.getElementById('loading-indicator');
     const resetFileBtn = document.getElementById('reset-file');
-    const splitControls = document.getElementById('split-controls');
-    
-    // 분할 컨트롤 요소 참조
-    const horizontalLinesInput = document.getElementById('horizontal-lines');
-    const verticalLinesInput = document.getElementById('vertical-lines');
-    const linePositions = document.getElementById('line-positions');
-    const previewOverlay = document.getElementById('preview-overlay');
     
     // gifshot 라이브러리 로드 확인
     let gifshotAvailable = typeof gifshot !== 'undefined';
@@ -80,12 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 분할된 GIF 미리보기 이미지 관리를 위한 배열
     let previewGifs = [null, null, null, null];
     
-    // 분할선 관련 변수
-    let horizontalLines = 1; // 가로 분할선 수 (기본값: 1개)
-    let verticalLines = 1;   // 세로 분할선 수 (기본값: 1개)
-    let hLinePositions = [50]; // 가로 분할선 위치 (기본값: 중간 50%)
-    let vLinePositions = [50]; // 세로 분할선 위치 (기본값: 중간 50%)
-    
     // 이벤트 리스너 설정
     gifUpload.addEventListener('change', handleFileUpload);
     splitBtn.addEventListener('click', function(e) {
@@ -94,192 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     downloadAllBtn.addEventListener('click', handleDownloadAll);
     resetFileBtn.addEventListener('click', resetVideoState);
-    
-    // 분할선 컨트롤 이벤트 설정
-    document.querySelectorAll('.number-input .minus-btn').forEach((btn, index) => {
-        btn.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
-            const minValue = parseInt(input.getAttribute('min'));
-            let value = parseInt(input.value);
-            
-            if (value > minValue) {
-                value--;
-                input.value = value;
-                
-                if (index === 0) { // 가로 분할선
-                    updateHorizontalLines(value);
-                } else { // 세로 분할선
-                    updateVerticalLines(value);
-                }
-            }
-        });
-    });
-    
-    document.querySelectorAll('.number-input .plus-btn').forEach((btn, index) => {
-        btn.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
-            const maxValue = parseInt(input.getAttribute('max'));
-            let value = parseInt(input.value);
-            
-            if (value < maxValue) {
-                value++;
-                input.value = value;
-                
-                if (index === 0) { // 가로 분할선
-                    updateHorizontalLines(value);
-                } else { // 세로 분할선
-                    updateVerticalLines(value);
-                }
-            }
-        });
-    });
-    
-    // 가로 분할선 업데이트
-    function updateHorizontalLines(count) {
-        horizontalLines = count;
-        
-        // 위치 배열 업데이트
-        if (count > hLinePositions.length) {
-            // 새 분할선 추가
-            while (hLinePositions.length < count) {
-                const pos = Math.round(100 / (hLinePositions.length + 1));
-                hLinePositions.push(pos);
-            }
-        } else if (count < hLinePositions.length) {
-            // 분할선 제거
-            hLinePositions = hLinePositions.slice(0, count);
-        }
-        
-        // 분할선 위치 조정 슬라이더 업데이트
-        updateLineControls();
-        
-        // 미리보기 업데이트
-        updateSplitPreview();
-    }
-    
-    // 세로 분할선 업데이트
-    function updateVerticalLines(count) {
-        verticalLines = count;
-        
-        // 위치 배열 업데이트
-        if (count > vLinePositions.length) {
-            // 새 분할선 추가
-            while (vLinePositions.length < count) {
-                const pos = Math.round(100 / (vLinePositions.length + 1));
-                vLinePositions.push(pos);
-            }
-        } else if (count < vLinePositions.length) {
-            // 분할선 제거
-            vLinePositions = vLinePositions.slice(0, count);
-        }
-        
-        // 분할선 위치 조정 슬라이더 업데이트
-        updateLineControls();
-        
-        // 미리보기 업데이트
-        updateSplitPreview();
-    }
-    
-    // 분할선 위치 조정 컨트롤 업데이트
-    function updateLineControls() {
-        // 기존 컨트롤 요소 제거
-        linePositions.innerHTML = '';
-        
-        // 가로 분할선 컨트롤 추가
-        for (let i = 0; i < horizontalLines; i++) {
-            const controlId = `h-line-${i}`;
-            const control = document.createElement('div');
-            control.className = 'line-position-control';
-            control.innerHTML = `
-                <label for="${controlId}">가로선 ${i+1} 위치: ${hLinePositions[i]}%</label>
-                <input type="range" id="${controlId}" min="5" max="95" value="${hLinePositions[i]}" 
-                    data-index="${i}" data-type="horizontal">
-                <div class="range-value">${hLinePositions[i]}%</div>
-            `;
-            linePositions.appendChild(control);
-            
-            // 이벤트 리스너 추가
-            const rangeInput = control.querySelector('input[type="range"]');
-            rangeInput.addEventListener('input', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                const type = this.getAttribute('data-type');
-                const value = parseInt(this.value);
-                
-                // 레이블 업데이트
-                this.previousElementSibling.innerText = `가로선 ${index+1} 위치: ${value}%`;
-                this.nextElementSibling.innerText = `${value}%`;
-                
-                // 값 업데이트
-                hLinePositions[index] = value;
-                
-                // 미리보기 업데이트
-                updateSplitPreview();
-            });
-        }
-        
-        // 세로 분할선 컨트롤 추가
-        for (let i = 0; i < verticalLines; i++) {
-            const controlId = `v-line-${i}`;
-            const control = document.createElement('div');
-            control.className = 'line-position-control';
-            control.innerHTML = `
-                <label for="${controlId}">세로선 ${i+1} 위치: ${vLinePositions[i]}%</label>
-                <input type="range" id="${controlId}" min="5" max="95" value="${vLinePositions[i]}" 
-                    data-index="${i}" data-type="vertical">
-                <div class="range-value">${vLinePositions[i]}%</div>
-            `;
-            linePositions.appendChild(control);
-            
-            // 이벤트 리스너 추가
-            const rangeInput = control.querySelector('input[type="range"]');
-            rangeInput.addEventListener('input', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                const type = this.getAttribute('data-type');
-                const value = parseInt(this.value);
-                
-                // 레이블 업데이트
-                this.previousElementSibling.innerText = `세로선 ${index+1} 위치: ${value}%`;
-                this.nextElementSibling.innerText = `${value}%`;
-                
-                // 값 업데이트
-                vLinePositions[index] = value;
-                
-                // 미리보기 업데이트
-                updateSplitPreview();
-            });
-        }
-    }
-    
-    // 분할 미리보기 업데이트
-    function updateSplitPreview() {
-        // 기존 분할선 제거
-        previewOverlay.innerHTML = '';
-        
-        // 이미지 크기 확인
-        const rect = previewImg.getBoundingClientRect();
-        previewOverlay.style.width = rect.width + 'px';
-        previewOverlay.style.height = rect.height + 'px';
-        
-        // 가로 분할선 추가
-        for (let i = 0; i < horizontalLines; i++) {
-            const line = document.createElement('div');
-            line.className = 'split-line horizontal';
-            line.style.top = `${hLinePositions[i]}%`;
-            previewOverlay.appendChild(line);
-        }
-        
-        // 세로 분할선 추가
-        for (let i = 0; i < verticalLines; i++) {
-            const line = document.createElement('div');
-            line.className = 'split-line vertical';
-            line.style.left = `${vLinePositions[i]}%`;
-            previewOverlay.appendChild(line);
-        }
-        
-        // 분할 버튼 텍스트 업데이트
-        const totalParts = (horizontalLines + 1) * (verticalLines + 1);
-        splitBtn.innerText = `${totalParts}등분 분할하기`;
-    }
     
     // 파일 업로드 처리 함수
     function handleFileUpload(event) {
@@ -354,21 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 분할 결과 숨기기
                     splitContainer.style.display = 'none';
                     
-                    // 분할 설정 컨트롤 표시
-                    splitControls.style.display = 'block';
-                    
-                    // 분할선 설정 초기화
-                    horizontalLinesInput.value = '1';
-                    verticalLinesInput.value = '1';
-                    horizontalLines = 1;
-                    verticalLines = 1;
-                    hLinePositions = [50];
-                    vLinePositions = [50];
-                    
-                    // 분할선 컨트롤 및 미리보기 업데이트
-                    updateLineControls();
-                    updateSplitPreview();
-                    
                     // 기존 분할 이미지가 있으면 제거
                     clearPreviousGifs();
                 });
@@ -410,9 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 분할 결과 숨기기
         splitContainer.style.display = 'none';
         
-        // 분할 설정 컨트롤 숨기기
-        splitControls.style.display = 'none';
-        
         // 분할 버튼 비활성화
         splitBtn.disabled = true;
         splitBtn.style.display = 'none';
@@ -448,51 +231,17 @@ document.addEventListener('DOMContentLoaded', () => {
         splitBtn.disabled = true;
         splitBtn.style.display = 'none';
         
-        // 분할 설정 컨트롤 숨기기
-        splitControls.style.display = 'none';
-        
         // 로딩 인디케이터 표시
         loadingIndicator.style.display = 'block';
         
         // 기존 분할 이미지가 있으면 제거
         clearPreviousGifs();
         
-        // 그리드 컨테이너 비우기
-        const gridContainer = document.querySelector('.grid-container');
-        gridContainer.innerHTML = '';
-        
-        // 분할 영역 동적 생성
-        const totalRows = horizontalLines + 1;
-        const totalCols = verticalLines + 1;
-        const totalParts = totalRows * totalCols;
-        
-        // 그리드 스타일 설정
-        gridContainer.style.gridTemplateColumns = `repeat(${totalCols}, 1fr)`;
-        gridContainer.style.gridTemplateRows = `repeat(${totalRows}, 1fr)`;
-        
-        // 캔버스와 다운로드 링크 참조 배열 초기화
-        const canvases = [];
-        
-        // 각 영역에 캔버스 생성
-        for (let i = 0; i < totalParts; i++) {
-            const gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-            gridItem.id = `part${i+1}`;
-            
-            const canvas = document.createElement('canvas');
-            canvas.id = `canvas${i+1}`;
-            gridItem.appendChild(canvas);
-            
-            gridContainer.appendChild(gridItem);
-            canvases.push(canvas);
-        }
-        
         // 타임아웃 설정 (30초 후 자동 취소, 시간 단축)
         const timeoutId = setTimeout(() => {
             loadingIndicator.style.display = 'none';
             splitBtn.disabled = false;
             splitBtn.style.display = 'block';
-            splitControls.style.display = 'block';
             alert('분할 작업이 너무 오래 걸립니다. GIF 파일 크기가 너무 큰 경우 분할이 어려울 수 있습니다.');
         }, 30000);
         
@@ -508,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log(`GIF 크기 추정: ${originalWidth}x${originalHeight}`);
                     
                     // 간단한 정적 이미지 분할 시작
-                    processSimpleSplit(currentFile, timeoutId, totalRows, totalCols);
+                    processSimpleSplit(currentFile, timeoutId);
                     
                     // 애니메이션 GIF 처리 시작 (별도로 진행)
                     processGifWithAnimation(currentFile);
@@ -518,13 +267,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadingIndicator.style.display = 'none';
                     splitBtn.disabled = false;
                     splitBtn.style.display = 'block';
-                    splitControls.style.display = 'block';
                     alert('이미지 로드 중 오류가 발생했습니다.');
                 };
                 img.src = URL.createObjectURL(currentFile);
             } else {
                 // 크기를 알고 있는 경우 직접 분할 시작
-                processSimpleSplit(currentFile, timeoutId, totalRows, totalCols);
+                processSimpleSplit(currentFile, timeoutId);
                 
                 // 애니메이션 GIF 처리 시작 (별도로 진행)
                 processGifWithAnimation(currentFile);
@@ -535,63 +283,48 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingIndicator.style.display = 'none';
             splitBtn.disabled = false;
             splitBtn.style.display = 'block';
-            splitControls.style.display = 'block';
             alert('GIF 처리 중 오류가 발생했습니다: ' + error.message);
         }
     }
     
-    // 간단한 이미지 분할 처리 함수 (업데이트)
-    function processSimpleSplit(file, timeoutId, rows, cols) {
+    // 간단한 이미지 분할 처리 함수 (정적 이미지)
+    function processSimpleSplit(file, timeoutId) {
         console.log('간단한 이미지 분할 시작...');
-        console.log(`분할 설정: ${rows}행 x ${cols}열`);
         
-        // 분할 영역의 위치 계산
-        const parts = [];
-        let partIndex = 0;
+        // 기본 정보 세팅
+        const fileURL = URL.createObjectURL(file);
+        const quadWidth = Math.floor(originalWidth / 2);
+        const quadHeight = Math.floor(originalHeight / 2);
         
-        // 분할선 위치를 퍼센트에서 픽셀로 변환
-        const hPixelPositions = [0, ...hLinePositions.map(p => Math.round(originalHeight * p / 100)), originalHeight];
-        const vPixelPositions = [0, ...vLinePositions.map(p => Math.round(originalWidth * p / 100)), originalWidth];
+        // 각 부분의 좌표
+        const parts = [
+            { x: 0, y: 0 }, // 좌상단
+            { x: quadWidth, y: 0 }, // 우상단
+            { x: 0, y: quadHeight }, // 좌하단
+            { x: quadWidth, y: quadHeight } // 우하단
+        ];
         
-        // 각 영역의 좌표와 크기 계산
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                parts.push({
-                    x: vPixelPositions[c],
-                    y: hPixelPositions[r],
-                    width: vPixelPositions[c+1] - vPixelPositions[c],
-                    height: hPixelPositions[r+1] - hPixelPositions[r],
-                    index: partIndex++
-                });
-            }
-        }
-        
+        // 카운터 초기화
         let completedParts = 0;
-        const totalParts = parts.length;
         
-        // 이미지 객체 생성 및 로드
+        // 이미지 로드
         const sourceImg = new Image();
         sourceImg.onload = function() {
             // 각 부분별로 분할
-            for (let i = 0; i < totalParts; i++) {
+            for (let i = 0; i < 4; i++) {
                 const part = parts[i];
                 
                 // 캔버스 설정
-                const canvas = document.getElementById(`canvas${i+1}`);
-                if (!canvas) {
-                    console.error(`캔버스 요소를 찾을 수 없음: canvas${i+1}`);
-                    continue;
-                }
-                
-                canvas.width = part.width;
-                canvas.height = part.height;
+                const canvas = canvases[i];
+                canvas.width = quadWidth;
+                canvas.height = quadHeight;
                 const ctx = canvas.getContext('2d');
                 
                 // 이미지 그리기
                 ctx.drawImage(
                     sourceImg, 
-                    part.x, part.y, part.width, part.height, 
-                    0, 0, part.width, part.height
+                    part.x, part.y, quadWidth, quadHeight, 
+                    0, 0, quadWidth, quadHeight
                 );
                 
                 // 임시로 캔버스 이미지 URL로 변환 (다운로드 링크는 나중에 애니메이션 GIF로 대체)
@@ -617,40 +350,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 모든 처리 완료 확인
                 completedParts++;
-                
-                if (completedParts >= totalParts) {
-                    console.log('모든 영역 분할 완료');
+                if (completedParts === 4) {
+                    clearTimeout(timeoutId);
                     
-                    // 분할 결과 표시
+                    // 로딩 인디케이터 숨기기
+                    loadingIndicator.style.display = 'none';
+                    
+                    // 분할 영역 표시
                     splitContainer.style.display = 'block';
                     
-                    // 타임아웃 취소
-                    clearTimeout(timeoutId);
+                    // 버튼 상태 복원
+                    splitBtn.disabled = false;
+                    splitBtn.style.display = 'block';
+                    
+                    console.log('정적 이미지 분할 완료');
+                    
+                    // 사용자에게 안내
+                    alert('GIF를 분할했습니다. 애니메이션이 포함된 분할 GIF를 생성 중입니다. 곧 다운로드 링크가 활성화됩니다.');
                 }
             }
         };
         
         sourceImg.onerror = function() {
-            console.error('이미지 로드 오류');
             clearTimeout(timeoutId);
             loadingIndicator.style.display = 'none';
             splitBtn.disabled = false;
             splitBtn.style.display = 'block';
-            splitControls.style.display = 'block';
-            alert('이미지를 로드할 수 없습니다.');
+            alert('이미지 로드 중 오류가 발생했습니다.');
         };
         
-        sourceImg.src = URL.createObjectURL(file);
+        sourceImg.src = fileURL;
     }
     
     // 애니메이션이 있는 GIF 처리 함수
     function processGifWithAnimation(file) {
         console.log('애니메이션 GIF 분할 시작...');
-        
-        // 전체 부분 수 계산
-        const totalRows = horizontalLines + 1;
-        const totalCols = verticalLines + 1;
-        const totalParts = totalRows * totalCols;
         
         // gifshot 라이브러리 확인 및 로드 시도
         if (typeof gifshot === 'undefined') {
@@ -681,27 +415,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // 여기서부터는 gifshot이 로드된 경우의 처리
         // 기본 정보 설정
         const fileURL = URL.createObjectURL(file);
+        const quadWidth = Math.floor(originalWidth / 2);
+        const quadHeight = Math.floor(originalHeight / 2);
         
-        // 분할선 위치를 퍼센트에서 픽셀로 변환
-        const hPixelPositions = [0, ...hLinePositions.map(p => Math.round(originalHeight * p / 100)), originalHeight];
-        const vPixelPositions = [0, ...vLinePositions.map(p => Math.round(originalWidth * p / 100)), originalWidth];
-        
-        // 각 영역의 좌표와 크기 계산
-        const parts = [];
-        let partIndex = 0;
-        
-        for (let r = 0; r < totalRows; r++) {
-            for (let c = 0; c < totalCols; c++) {
-                parts.push({
-                    x: vPixelPositions[c],
-                    y: hPixelPositions[r],
-                    width: vPixelPositions[c+1] - vPixelPositions[c],
-                    height: hPixelPositions[r+1] - hPixelPositions[r],
-                    name: `${r+1}-${c+1}`,
-                    index: partIndex++
-                });
-            }
-        }
+        // 각 부분의 좌표
+        const parts = [
+            { x: 0, y: 0, name: "좌상단" }, // 좌상단
+            { x: quadWidth, y: 0, name: "우상단" }, // 우상단
+            { x: 0, y: quadHeight, name: "좌하단" }, // 좌하단
+            { x: quadWidth, y: quadHeight, name: "우하단" } // 우하단
+        ];
         
         // SuperGif을 통한 이미지 시퀀스 방식으로 처리
         const tempImg = new Image();
@@ -727,119 +450,105 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     // 각 부분별로 프레임 수집
-                    const partFrames = Array(totalParts).fill().map(() => []); // 분할된 각 부분의 프레임 이미지 배열
-                    let frameDelay = 100;
+                    const partFrames = [[], [], [], []]; // 4개 부분의 프레임 이미지 배열
+                    let frameDelay = 100; // 기본 지연 시간 (ms)
                     
+                    // 모든 프레임 추출
                     try {
-                        // 프레임 딜레이 정보 가져오기 (첫 프레임 기준)
-                        frameDelay = gifAnalyzer.get_canvas().id_to_animated_gif_control.ext.get_frameDelay() || 100;
-                        console.log(`프레임 딜레이: ${frameDelay}ms`);
-                    } catch (e) {
-                        console.warn('프레임 딜레이 정보를 가져오는 중 오류:', e);
-                    }
-                    
-                    console.log('각 프레임별로 분할 영역 추출 시작...');
-                    
-                    // 모든 프레임 처리
-                    for (let i = 0; i < frameCount; i++) {
-                        // 현재 프레임으로 이동
-                        gifAnalyzer.move_to(i);
-                        
-                        // 현재 프레임의 캔버스 가져오기
-                        const frameCanvas = gifAnalyzer.get_canvas();
-                        
-                        // 각 분할 영역별로 이미지 추출
-                        for (let j = 0; j < totalParts; j++) {
-                            const part = parts[j];
+                        for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+                            // 프레임 이동
+                            gifAnalyzer.move_to(frameIndex);
                             
-                            // 부분 이미지를 담을 임시 캔버스
-                            const tempCanvas = document.createElement('canvas');
-                            tempCanvas.width = part.width;
-                            tempCanvas.height = part.height;
-                            const tempCtx = tempCanvas.getContext('2d');
+                            // 현재 프레임 캔버스 가져오기
+                            const frameCanvas = gifAnalyzer.get_canvas();
                             
-                            // 원본 프레임에서 부분 이미지 그리기
-                            tempCtx.drawImage(
-                                frameCanvas, 
-                                part.x, part.y, part.width, part.height, 
-                                0, 0, part.width, part.height
-                            );
+                            // 각 부분별로 프레임 추출
+                            for (let i = 0; i < 4; i++) {
+                                const part = parts[i];
+                                
+                                // 부분별 캔버스 생성
+                                const partCanvas = document.createElement('canvas');
+                                partCanvas.width = quadWidth;
+                                partCanvas.height = quadHeight;
+                                const partCtx = partCanvas.getContext('2d');
+                                
+                                // 해당 영역 그리기
+                                partCtx.drawImage(
+                                    frameCanvas, 
+                                    part.x, part.y, quadWidth, quadHeight, 
+                                    0, 0, quadWidth, quadHeight
+                                );
+                                
+                                // 이미지 URL로 변환하여 프레임 배열에 추가
+                                partFrames[i].push(partCanvas.toDataURL('image/png'));
+                            }
                             
-                            // 부분 이미지 URL 가져오기
-                            const partImageData = tempCanvas.toDataURL('image/png');
-                            
-                            // 부분 영역의 프레임 배열에 추가
-                            partFrames[j].push(partImageData);
+                            // 진행 상황 로그 (10프레임마다)
+                            if (frameIndex % 10 === 0 || frameIndex === frameCount - 1) {
+                                console.log(`프레임 추출 진행률: ${Math.round((frameIndex + 1) / frameCount * 100)}%`);
+                            }
                         }
                         
-                        // 진행 상황 표시
-                        if (i % 5 === 0 || i === frameCount - 1) {
-                            console.log(`프레임 처리 중: ${i+1}/${frameCount} (${Math.round((i+1) / frameCount * 100)}%)`);
-                            updateProgress(Math.round((i+1) / frameCount * 70)); // 최대 70%까지
-                        }
+                        console.log('모든 프레임 추출 완료. 각 부분별 GIF 생성 시작...');
+                        
+                        // 각 부분별로 GIF 생성
+                        createGifsFromFrames(partFrames, parts, quadWidth, quadHeight, frameDelay);
+                    } catch (extractError) {
+                        console.error('프레임 추출 중 오류 발생:', extractError);
+                        processWithGifJs(file);
                     }
-                    
-                    console.log('프레임 추출 완료. GIF 생성 시작...');
-                    
-                    // 각 부분별로 GIF 생성
-                    createGifsFromFrames(partFrames, parts, frameDelay);
                 });
-            } catch (error) {
-                console.error('GIF 분석 중 오류 발생:', error);
-                processGIFWithGifshot(null);
+            } catch (analyzerError) {
+                console.error('GIF 분석기 초기화 중 오류 발생:', analyzerError);
+                processWithGifJs(file);
             }
         };
         
         tempImg.onerror = function() {
-            console.error('GIF 로드 실패');
-            processGIFWithGifshot(null);
+            console.error('애니메이션 GIF 분석을 위한 이미지 로드 실패');
+            processWithGifJs(file);
         };
         
-        tempImg.src = fileURL;
+        // rel:animated_src 속성 설정 (libgif-js에서 사용하는 방식)
+        tempImg.setAttribute('rel:animated_src', fileURL);
+        tempImg.setAttribute('src', fileURL);
     }
     
-    // 프레임 시퀀스에서 GIF 생성 함수
-    function createGifsFromFrames(partFrames, parts, frameDelay) {
-        const totalParts = partFrames.length;
+    // 프레임 배열로부터 GIF 생성하는 함수
+    function createGifsFromFrames(partFrames, parts, width, height, frameDelay) {
+        // 각 부분별로 GIF 생성
         let completedGifs = 0;
         
-        // 진행 상황 표시
-        function updateGifProgress(percent) {
-            // 70% 기준에서 시작하여 100%로 
-            updateProgress(70 + Math.round(percent * 0.3));
-        }
-        
-        console.log(`${totalParts}개의 분할 GIF 생성 시작...`);
-        
-        // 각 부분별로 GIF 생성 시도
-        for (let i = 0; i < totalParts; i++) {
-            const part = parts[i];
+        for (let i = 0; i < 4; i++) {
+            console.log(`부분 ${i+1}(${parts[i].name}) GIF 생성 시작: ${partFrames[i].length}개 프레임`);
+            
+            // 프레임이 있는지 확인
+            if (partFrames[i].length === 0) {
+                console.error(`부분 ${i+1} 프레임이 없습니다.`);
+                completedGifs++;
+                continue;
+            }
             
             try {
-                // GIF 옵션 설정
-                const options = {
-                    images: partFrames[i],
-                    gifWidth: part.width,
-                    gifHeight: part.height,
-                    interval: frameDelay / 1000, // 초 단위로 변환
-                    numFrames: partFrames[i].length,
-                    frameDuration: frameDelay,
-                    sampleInterval: 10,
-                    progressCallback: function(progress) {
-                        console.log(`부분 ${i+1} GIF 생성 진행: ${Math.round(progress * 100)}%`);
+                // gifshot으로 GIF 생성
+                gifshot.createGIF({
+                    'images': partFrames[i],
+                    'gifWidth': width,
+                    'gifHeight': height,
+                    'interval': frameDelay / 1000, // 초 단위로 변환
+                    'progressCallback': function(progress) {
+                        console.log(`부분 ${i+1} GIF 생성 진행률: ${Math.round(progress * 100)}%`);
                     }
-                };
-                
-                // Gifshot으로 GIF 생성
-                gifshot.createGIF(options, function(obj) {
+                }, function(obj) {
                     if (!obj.error) {
                         console.log(`부분 ${i+1} GIF 생성 완료`);
                         
-                        // 프로세스 진행율 업데이트
-                        completedGifs++;
-                        updateGifProgress(completedGifs / totalParts);
+                        // 다운로드 링크 설정
+                        const downloadLink = downloadLinks[i];
+                        downloadLink.href = obj.image;
+                        downloadLink.download = `part${i+1}_animated.gif`;
                         
-                        // 미리보기 이미지 업데이트
+                        // 미리보기 업데이트 (애니메이션 GIF로)
                         if (previewGifs[i]) {
                             previewGifs[i].src = obj.image;
                         }
@@ -848,28 +557,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         processedGifs[i] = obj.image;
                         
                         // 완료 카운터 증가
-                        if (completedGifs >= totalParts) {
-                            console.log('모든 GIF 생성 완료!');
-                            loadingIndicator.style.display = 'none';
-                            splitBtn.disabled = false;
-                            splitBtn.style.display = 'block';
+                        completedGifs++;
+                        console.log(`GIF 생성 완료: ${completedGifs}/4`);
+                        
+                        // 모든 부분 완료 확인
+                        if (completedGifs === 4) {
+                            console.log('모든 애니메이션 GIF 처리 완료');
+                            alert('애니메이션이 있는 분할 GIF가 준비되었습니다. 이제 다운로드할 수 있습니다.');
                         }
                     } else {
-                        console.error('GIF 생성 중 오류:', obj.error);
-                        if (completedGifs === 0) {
-                            alert('GIF 생성 중 오류가 발생했습니다. 정적 이미지만 제공됩니다.');
+                        console.error(`부분 ${i+1} GIF 생성 실패:`, obj.error);
+                        completedGifs++;
+                        
+                        // 모든 부분 완료 확인
+                        if (completedGifs === 4) {
+                            console.log('모든 GIF 처리 완료 (일부 실패)');
+                            alert('일부 애니메이션 GIF가 생성되지 않았습니다. 생성된 GIF만 다운로드할 수 있습니다.');
                         }
                     }
                 });
-            } catch (e) {
-                console.error(`부분 ${i+1} GIF 생성 실패:`, e);
+            } catch (error) {
+                console.error(`부분 ${i+1} GIF 생성 중 오류:`, error);
                 completedGifs++;
                 
-                if (completedGifs >= totalParts) {
-                    console.log('모든 GIF 처리 완료 (일부 오류 발생)');
-                    loadingIndicator.style.display = 'none';
-                    splitBtn.disabled = false;
-                    splitBtn.style.display = 'block';
+                // 모든 부분 완료 확인
+                if (completedGifs === 4) {
+                    console.log('모든 GIF 처리 완료 (일부 실패)');
+                    alert('일부 애니메이션 GIF가 생성되지 않았습니다. 생성된 GIF만 다운로드할 수 있습니다.');
                 }
             }
         }

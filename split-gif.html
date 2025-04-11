@@ -117,42 +117,6 @@
                             <img id="preview-img" rel:animated_src="" rel:auto_play="1" src="" alt="원본 GIF 미리보기" style="display: none;">
                             <p class="no-preview">GIF를 업로드하면 여기에 미리보기가 표시됩니다</p>
                         </div>
-                        
-                        <!-- 분할 설정 컨트롤 추가 -->
-                        <div id="split-controls" class="split-controls" style="display: none;">
-                            <h4>분할 설정</h4>
-                            
-                            <div class="control-row">
-                                <div class="control-group">
-                                    <label for="horizontal-lines">가로 분할선:</label>
-                                    <div class="number-input">
-                                        <button type="button" class="minus-btn">-</button>
-                                        <input type="number" id="horizontal-lines" min="0" max="3" value="1" readonly>
-                                        <button type="button" class="plus-btn">+</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="vertical-lines">세로 분할선:</label>
-                                    <div class="number-input">
-                                        <button type="button" class="minus-btn">-</button>
-                                        <input type="number" id="vertical-lines" min="0" max="3" value="1" readonly>
-                                        <button type="button" class="plus-btn">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="line-positions" class="line-positions">
-                                <!-- 분할선 위치 컨트롤은 자바스크립트로 동적 생성됨 -->
-                            </div>
-                            
-                            <div class="preview-with-lines">
-                                <div id="preview-overlay" class="preview-overlay">
-                                    <!-- 분할선이 여기에 표시됨 -->
-                                </div>
-                            </div>
-                        </div>
-                        
                         <button id="split-btn" class="btn split-btn">4등분 분할하기</button>
                         <div id="loading-indicator" class="loading-indicator" style="display: none;">
                             <div class="spinner"></div>

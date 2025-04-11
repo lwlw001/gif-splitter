@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF 이미지 분할 도구</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-container">
+            <h1 class="logo">GIF 이미지 분할 도구</h1>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html" class="active">홈</a></li>
+                    <li><a href="split-gif.html">GIF 분할</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="intro-section">
+            <div class="intro-content centered-content">
+                <div class="intro-text">
+                    <h2 class="section-title">쉽고 빠른 GIF 이미지 분할 도구</h2>
+                    <p class="description">
+                        애니메이션 GIF를 4등분으로 분할하여 각각의 개별 GIF로 저장할 수 있는 무료 웹 도구입니다.
+                        브라우저에서 바로 작업할 수 있어 별도의 프로그램 설치가 필요 없습니다.
+                    </p>
+                    <div class="highlight">
+                        <p>
+                            <i class="fas fa-check-circle"></i> 애니메이션 GIF 파일 4등분 분할<br>
+                            <i class="fas fa-check-circle"></i> 간편한 인터페이스와 빠른 처리 속도<br>
+                            <i class="fas fa-check-circle"></i> 별도의 프로그램 설치 없이 웹 브라우저에서 사용
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 예시 GIF 분할 표시 -->
+            <div class="example-gif-container">
+                <h3 class="example-title">GIF 분할 예시</h3>
+                
+                <div class="original-example">
+                    <h4>원본 GIF</h4>
+                    <img src="img/yay_420.gif" alt="원본 GIF 예시">
+                </div>
+                
+                <div class="arrow-down">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                
+                <h4>4등분 분할 결과</h4>
+                <div class="split-example">
+                    <img src="img/part1.gif" alt="분할 GIF 좌상단">
+                    <img src="img/part2.gif" alt="분할 GIF 우상단">
+                    <img src="img/part3.gif" alt="분할 GIF 좌하단">
+                    <img src="img/part4.gif" alt="분할 GIF 우하단">
+                </div>
+            </div>
+        </section>
+
+        <section class="what-is-section">
+            <h2 class="section-title">GIF 분할 활용 방법</h2>
+            <div class="what-is-content centered-content">
+                <div class="text-side-full">
+                    <div class="key-point">
+                        <h3><i class="fas fa-puzzle-piece"></i> 이미지 퍼즐 효과</h3>
+                        <p>분할된 GIF를 웹페이지나 SNS에 배치하여 창의적인 퍼즐 효과를 연출할 수 있습니다.</p>
+                    </div>
+                    <div class="key-point">
+                        <h3><i class="fas fa-desktop"></i> 웹 디자인 요소</h3>
+                        <p>분할된 애니메이션을 웹사이트의 다양한 섹션에 배치하여 역동적인 디자인을 완성하세요.</p>
+                    </div>
+                    <div class="key-point">
+                        <h3><i class="fas fa-share-alt"></i> SNS 콘텐츠 제작</h3>
+                        <p>인스타그램이나 트위터의 그리드 시스템에 맞춰 분할된 GIF를 활용해 독특한 프로필을 만들 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="examples-section">
+            <h2 class="section-title">주요 기능</h2>
+            <div class="examples-grid text-only">
+                <div class="example-card text-only-card">
+                    <div class="example-desc">
+                        <h4>GIF 4등분 분할</h4>
+                        <p>애니메이션 GIF를 4개의 동일한 크기로 분할하여 개별 파일로 저장할 수 있습니다.</p>
+                    </div>
+                </div>
+                <div class="example-card text-only-card">
+                    <div class="example-desc">
+                        <h4>애니메이션 보존</h4>
+                        <p>원본 GIF의 애니메이션이 각 분할 영역에서도 그대로 유지됩니다.</p>
+                    </div>
+                </div>
+                <div class="example-card text-only-card">
+                    <div class="example-desc">
+                        <h4>쉽고 빠른 작업</h4>
+                        <p>별도의 설치 없이 브라우저에서 직접 작업하고 결과물을 바로 다운로드할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="cta-container">
+            <p>지금 바로 GIF 분할을 시작해 보세요!</p>
+            <div class="cta-buttons">
+                <a href="split-gif.html" class="cta-button">GIF 분할하기</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="main-footer">
+        <div class="footer-container">
+            <p>&copy; 2023 GIF 이미지 분할 도구. 모든 권리 보유.</p>
+        </div>
+    </footer>
+</body>
+</html> 

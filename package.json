@@ -1,0 +1,28 @@
+{
+  "name": "gif-splitter",
+  "version": "1.0.0",
+  "description": "GIF 파일을 4등분으로 분할하는 웹 애플리케이션",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "keywords": [
+    "gif",
+    "split",
+    "animation",
+    "image",
+    "processing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "http": "^0.0.1-security",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  }
+} 

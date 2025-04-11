@@ -1,0 +1,23 @@
+# 대용량 파일
+*.zip
+
+# Node.js 관련
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.npm
+
+# 운영체제 파일
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# 로그 파일
+logs/
+*.log
+
+# 임시 파일
+tmp/
+temp/ 

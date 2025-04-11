@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF 이미지 분할 도구</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 폰트 추가 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- GIF 처리를 위한 라이브러리 -->
+    <script src="https://unpkg.com/gif.js@0.2.0/dist/gif.js"></script>
+    <script src="https://unpkg.com/gif.js@0.2.0/dist/gif.worker.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/buzzfeed/libgif-js@master/libgif.js"></script>
+    
+    <!-- gifshot 라이브러리 다중 소스로 로드 (여러 CDN 시도) -->
+    <script>
+        // gifshot 라이브러리 로드 함수
+        function loadGifshot() {
+            if (typeof gifshot !== 'undefined') {
+                console.log('Gifshot 이미 로드됨');
+                return Promise.resolve();
+            }
+            
+            // 여러 CDN 주소 설정
+            const cdnUrls = [
+                'https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.4.5/gifshot.min.js',
+                'https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js',
+                'https://unpkg.com/gifshot@0.4.5/dist/gifshot.min.js'
+            ];
+            
+            // 첫 번째 CDN에서 로드 시도
+            return loadScript(cdnUrls[0])
+                .catch(() => {
+                    console.log('첫 번째 CDN 실패, 두 번째 시도...');
+                    // 첫 번째 실패 시 두 번째로 시도
+                    return loadScript(cdnUrls[1]);
+                })
+                .catch(() => {
+                    console.log('두 번째 CDN 실패, 세 번째 시도...');
+                    // 두 번째 실패 시 세 번째로 시도
+                    return loadScript(cdnUrls[2]);
+                })
+                .catch(error => {
+                    console.error('모든 CDN에서 Gifshot 로드 실패:', error);
+                    alert('애니메이션 GIF 분할에 필요한 라이브러리를 로드할 수 없습니다. 정적 이미지만 생성됩니다.');
+                });
+        }
+        
+        // 스크립트 로드 함수
+        function loadScript(url) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 페이지 로드 시 라이브러리 로드 시도
+        window.addEventListener('DOMContentLoaded', loadGifshot);
+    </script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-container">
+            <h1 class="logo">GIF 이미지 분할 도구</h1>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="split-gif.html" class="active">GIF 분할</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="tool-section">
+            <div class="tool-header">
+                <h2 class="section-title">GIF 4등분 분할 도구</h2>
+                <p class="tool-description">
+                    애니메이션 GIF를 4개의 영역으로 분할하여 개별 애니메이션으로 저장할 수 있습니다.
+                    SNS 게시물, 웹 디자인, 인터랙티브 요소 제작 등 다양한 용도로 활용해보세요.
+                </p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="upload-section">
+                    <div class="upload-card">
+                        <h3>GIF 파일 업로드</h3>
+                        <p>분할할 애니메이션 GIF 파일을 선택해 주세요</p>
+                        <label for="gif-upload" class="upload-btn">
+                            <span>파일 선택</span>
+                            <input type="file" id="gif-upload" accept=".gif" />
+                        </label>
+                        <p class="upload-help">최대 10MB, GIF 파일만 가능</p>
+                        <button id="reset-file" class="btn reset-btn" style="display: none;">파일 취소</button>
+                        <div class="file-format-note">
+                            <p><i class="fas fa-info-circle"></i> 파일 형식 안내:</p>
+                            <ul>
+                                <li>GIF 형식만 지원됩니다 (.gif)</li>
+                                <li>애니메이션 또는 정적 GIF 모두 가능합니다</li>
+                                <li>분할 작업의 원활한 처리를 위해 10MB 이하 권장</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preview-section">
+                    <div id="original-gif" class="original-preview">
+                        <h3>원본 GIF</h3>
+                        <div class="preview-container">
+                            <img id="preview-img" rel:animated_src="" rel:auto_play="1" src="" alt="원본 GIF 미리보기" style="display: none;">
+                            <p class="no-preview">GIF를 업로드하면 여기에 미리보기가 표시됩니다</p>
+                        </div>
+                        
+                        <!-- 분할 설정 컨트롤 추가 -->
+                        <div id="split-controls" class="split-controls" style="display: none;">
+                            <h4>분할 설정</h4>
+                            
+                            <div class="control-row">
+                                <div class="control-group">
+                                    <label for="horizontal-lines">가로 분할선:</label>
+                                    <div class="number-input">
+                                        <button type="button" class="minus-btn">-</button>
+                                        <input type="number" id="horizontal-lines" min="0" max="3" value="1" readonly>
+                                        <button type="button" class="plus-btn">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="vertical-lines">세로 분할선:</label>
+                                    <div class="number-input">
+                                        <button type="button" class="minus-btn">-</button>
+                                        <input type="number" id="vertical-lines" min="0" max="3" value="1" readonly>
+                                        <button type="button" class="plus-btn">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="line-positions" class="line-positions">
+                                <!-- 분할선 위치 컨트롤은 자바스크립트로 동적 생성됨 -->
+                            </div>
+                            
+                            <div class="preview-with-lines">
+                                <div id="preview-overlay" class="preview-overlay">
+                                    <!-- 분할선이 여기에 표시됨 -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="split-btn" class="btn split-btn">4등분 분할하기</button>
+                        <div id="loading-indicator" class="loading-indicator" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>분할 작업 중입니다. 잠시만 기다려주세요...</p>
+                        </div>
+                    </div>
+                    
+                    <div id="split-container" class="split-preview" style="display: none;">
+                        <h3>분할된 GIF</h3>
+                        <div class="grid-container">
+                            <div class="grid-item" id="part1">
+                                <canvas id="canvas1"></canvas>
+                            </div>
+                            <div class="grid-item" id="part2">
+                                <canvas id="canvas2"></canvas>
+                            </div>
+                            <div class="grid-item" id="part3">
+                                <canvas id="canvas3"></canvas>
+                            </div>
+                            <div class="grid-item" id="part4">
+                                <canvas id="canvas4"></canvas>
+                            </div>
+                        </div>
+                        <button id="download-all" class="btn">모두 다운로드</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tool-guide">
+                <h3>사용 가이드</h3>
+                <ol>
+                    <li>분할하고 싶은 GIF 파일을 업로드합니다.</li>
+                    <li>원본 GIF가 미리보기에 표시되면 '4등분 분할하기' 버튼을 클릭합니다.</li>
+                    <li>분할 작업이 완료되면 4개의 분할된 GIF가 표시됩니다.</li>
+                    <li>'모두 다운로드' 버튼을 눌러 분할된 GIF를 한 번에 다운로드할 수 있습니다.</li>
+                </ol>
+                <div class="guide-note">
+                    <p><i class="fas fa-info-circle"></i> 참고: 큰 GIF 파일의 경우 분할 작업에 시간이 소요될 수 있습니다. 잠시만 기다려 주세요.</p>
+                    <p><i class="fas fa-lightbulb"></i> 팁: 분할된 GIF는 원본과 동일한 애니메이션 속도를 유지합니다.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="main-footer">
+        <div class="footer-container">
+            <p>&copy; 2023 GIF 이미지 분할 도구. 모든 권리 보유.</p>
+        </div>
+    </footer>
+    
+    <!-- 메인 스크립트 -->
+    <script src="script.js"></script>
+</body>
+</html> 

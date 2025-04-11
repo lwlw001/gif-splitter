@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.css", "use": "@vercel/static" },
+    { "src": "*.js", "use": "@vercel/static" },
+    { "src": "img/**", "use": "@vercel/static" },
+    { "src": "server.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/(.+\\.gif)", "dest": "/$1" },
+    { "src": "/(.+\\.js)", "dest": "/$1" },
+    { "src": "/(.+\\.css)", "dest": "/$1" },
+    { "src": "/(.+\\.html)", "dest": "/$1" },
+    { "src": "/img/(.*)", "dest": "/img/$1" },
+    { "src": "/(.*)", "dest": "/server.js" }
+  ]
+} 
